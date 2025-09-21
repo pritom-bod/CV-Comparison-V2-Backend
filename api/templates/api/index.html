@@ -1,0 +1,110 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CV Comparison Tool</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { padding: 20px; background: #f8f9fa; }
+    .card { border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .matrix-table th, .matrix-table td { text-align: center; }
+    .result-section { margin-top: 30px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1 class="mb-4 text-center">CV Comparison against ToR</h1>
+
+  <!-- Input Form -->
+  <div class="card p-4">
+    <form id="compareForm" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="tor" class="form-label"><strong>Terms of Reference (ToR)</strong></label>
+        <textarea class="form-control" id="tor" name="tor" rows="6" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="cvs" class="form-label"><strong>Upload CVs (PDF/DOCX, 1–10 files)</strong></label>
+        <input class="form-control" type="file" id="cvs" name="cvs" multiple required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Compare CVs</button>
+    </form>
+  </div>
+
+  <!-- Results -->
+  <div id="results" class="result-section" style="display:none;">
+    <div class="card p-4">
+      <h3>Comparison Matrix</h3>
+      <div class="table-responsive">
+        <table class="table table-bordered matrix-table">
+          <thead class="table-light">
+            <tr>
+              <th>Candidate Name</th>
+              <th>Overall Score</th>
+              <th>Rank</th>
+            </tr>
+          </thead>
+          <tbody id="matrixBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <h3>Final Recommendation</h3>
+      <p><strong>Best Candidate:</strong> <span id="bestCandidate"></span></p>
+      <p><strong>Final Decision:</strong> <span id="finalDecision"></span></p>
+      <p><strong>Justification:</strong></p>
+      <div id="finalJustification" class="alert alert-info"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById("compareForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+
+  const response = await fetch("{% url 'compare_cvs' %}", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (data.error) {
+    alert("Error: " + data.error);
+    return;
+  }
+
+  // Show results section
+  document.getElementById("results").style.display = "block";
+
+  // Fill comparison matrix
+  const matrixBody = document.getElementById("matrixBody");
+  matrixBody.innerHTML = "";
+  (data.comparison_matrix || data.cv_comparison_matrix || []).forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.candidate_name || row.candidate_id}</td>
+      <td>${row.total_score}</td>
+      <td>${row.rank}</td>
+    `;
+    matrixBody.appendChild(tr);
+  });
+
+  // Fill final recommendation
+  if (data.best_candidate) {
+    document.getElementById("bestCandidate").textContent = data.best_candidate.candidate_name;
+    document.getElementById("finalDecision").textContent = data.best_candidate.final_decision || "N/A";
+    document.getElementById("finalJustification").textContent = data.best_candidate.final_justification || "No justification provided.";
+  } else if (data.final_recommendation) {
+    document.getElementById("bestCandidate").textContent = data.final_recommendation.best_candidate;
+    document.getElementById("finalDecision").textContent = data.final_recommendation.no_suitable_candidate ? "No Suitable Candidate" : "Suitable";
+    document.getElementById("finalJustification").textContent = data.final_recommendation.justification;
+  }
+});
+</script>
+</body>
+</html>
