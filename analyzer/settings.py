@@ -8,12 +8,12 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-your-secret-key-here'  # Change in production
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-your-secret-key-here')  # Use env var for production
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'  # Convert string to boolean
 
-ALLOWED_HOSTS = ['*']  # Restrict in production
+ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']  # Restrict for Vercel
 
 # Application definition
 INSTALLED_APPS = [
@@ -31,6 +31,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Added for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -39,7 +40,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'analyzer.urls'  # Updated from 'backend.urls'
+ROOT_URLCONF = 'analyzer.urls'
 
 TEMPLATES = [
     {
@@ -57,13 +58,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'analyzer.wsgi.application'  # Updated from 'backend.wsgi.application'
+WSGI_APPLICATION = 'analyzer.wsgi.application'
 
 # Database
+# Using in-memory SQLite for Vercel (stateless)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': ':memory:',  # In-memory for serverless
     }
 }
 
@@ -90,7 +92,9 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # For collectstatic
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # For WhiteNoise
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -99,6 +103,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://your-vercel-app.vercel.app",  # Replace with your Vercel domain
 ]
 
 CORS_ALLOW_METHODS = [
@@ -118,3 +123,20 @@ CORS_ALLOW_HEADERS = [
 
 # Gemini API Key
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
+# Logging configuration for debugging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+        },
+    },
+}
