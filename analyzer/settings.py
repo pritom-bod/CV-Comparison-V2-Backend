@@ -4,18 +4,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-your-secret-key-here')  # Use env var for production
+# Security
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-your-secret-key-here')  # Set in Render
+DEBUG = os.getenv('DEBUG', 'True') == 'True'  # False in production
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True') == 'True'  # Convert string to boolean
+ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']  # Render domain
 
-ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']  # Restrict for Vercel
-
-# Application definition
+# Installed apps
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -31,7 +29,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Added for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -60,29 +58,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'analyzer.wsgi.application'
 
-# Database
-# Using in-memory SQLite for Vercel (stateless)
+# Database (stateless, in-memory)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',  # In-memory for serverless
+        'NAME': ':memory:',
     }
 }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Internationalization
@@ -93,38 +82,26 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # For collectstatic
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # For WhiteNoise
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Default primary key field type
+# Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS settings
+# CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://your-vercel-app.vercel.app",  # Replace with your Vercel domain
+    "https://your-frontend.vercel.app",  # Update with your frontend URL
 ]
 
-CORS_ALLOW_METHODS = [
-    "GET",
-    "POST",
-    "PUT",
-    "PATCH",
-    "DELETE",
-    "OPTIONS",
-]
-
-CORS_ALLOW_HEADERS = [
-    "content-type",
-    "authorization",
-    "x-csrftoken",
-]
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+CORS_ALLOW_HEADERS = ["content-type", "authorization", "x-csrftoken"]
 
 # Gemini API Key
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
-# Logging configuration for debugging
+# Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
