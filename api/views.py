@@ -348,7 +348,7 @@ OUTPUT FORMAT:
   ],
   "final_recommendation": {
     "best_candidate": "Name or None",
-    "final_decision": "Highly Suitable | Suitable | Not Suitable | None Suitable",
+    "final_decision": "Highly Suitable | Suitable | Not Suitable | None Suitable (if no one is suitable directly say Not Suitable for all cadidates)",
     "justification": {
     "detailed_explanation": "Detailed explanation why best candidate is chosen OR why no one is suitable AND also explain other candidates are not chosen. Must include strengths, weaknesses, and comparison.",
     "why_he": "Why your recommended candidate is the best candidate. Full details explaining strengths, achievements, and suitability.",
