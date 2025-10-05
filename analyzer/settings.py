@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-your-secret-key-here')  # Set in Render
 DEBUG = os.getenv('DEBUG', 'True') == 'True'  # False in production
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','cv-comparison-v2-backend.onrender.com','.onrender.com', ]  # Render domain
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'cv-comparison-v2-backend.onrender.com','.onrender.com', ]  # Render domain
 
 # Installed apps
 INSTALLED_APPS = [
@@ -62,7 +62,7 @@ WSGI_APPLICATION = 'analyzer.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -92,6 +92,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://192.168.1.17:3000",
     "https://cv-comparison-v2-frontend-vica.vercel.app",  # Update with your frontend URL
 ]
 

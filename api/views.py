@@ -1,4 +1,5 @@
 import json
+from xml.parsers.expat import model
 from django.http import JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
@@ -180,7 +181,7 @@ class CompareCVsView(View):
             genai.configure(api_key=settings.GEMINI_API_KEY)
 
             # Use deterministic config for reproducible results
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('models/gemini-2.5-flash')
             generation_config = {
                 "temperature": 0,
                 "top_p": 1,
