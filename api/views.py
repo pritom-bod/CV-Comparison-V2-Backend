@@ -181,7 +181,7 @@ class CompareCVsView(View):
             genai.configure(api_key=settings.GEMINI_API_KEY)
 
             # Use deterministic config for reproducible results
-            model = genai.GenerativeModel('models/gemini-2.5-flash')
+            model = genai.GenerativeModel('models/gemini-2.0-flash')
             generation_config = {
                 "temperature": 0,
                 "top_p": 1,
